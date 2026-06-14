@@ -4,6 +4,17 @@
 
 "use strict";
 
+// Tab expanding logic (Zen Mode check)
+const urlParams = new URLSearchParams(window.location.search);
+const isTabMode = urlParams.get("mode") === "tab";
+
+if (isTabMode) {
+  document.documentElement.style.width = "100%";
+  document.documentElement.style.height = "100%";
+  document.body.style.width = "100%";
+  document.body.style.height = "100%";
+}
+
 const STORAGE_NOTES = "notepad_notes";
 const STORAGE_ACTIVE = "notepad_active";
 const STORAGE_THEME = "notepad_theme";
@@ -11,7 +22,7 @@ const STORAGE_THEME = "notepad_theme";
 let notes = [];
 let activeId = null;
 let statusTimer = null;
-let previewOn = false; 
+let previewOn = false;
 let isLightMode = false;
 let isSearching = false;
 
@@ -33,12 +44,12 @@ const btnTheme = document.getElementById("btn-theme");
 const btnSearchToggle = document.getElementById("btn-search-toggle");
 const btnGrabTab = document.getElementById("btn-grab-tab");
 const btnCodeBlock = document.getElementById("btn-code-block");
-const btnCopyAll = document.getElementById("btn-copy-all"); 
+const btnCopyAll = document.getElementById("btn-copy-all");
+const btnPopout = document.getElementById("btn-popout");
 
-// Formatting Tools
-const btnBold = document.getElementById("btn-bold");
-const btnItalic = document.getElementById("btn-italic");
-const btnStrikethrough = document.getElementById("btn-strikethrough");
+if (isTabMode && btnPopout) {
+  btnPopout.style.display = "none";
+}
 
 const searchWrap = document.getElementById("search-wrap");
 const searchInput = document.getElementById("search-input");
@@ -49,9 +60,11 @@ const globalStats = document.getElementById("global-stats");
 const selectionStats = document.getElementById("selection-stats");
 const readingTime = document.getElementById("reading-time");
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
 function activeNote() {
   return notes.find((n) => n.id === activeId) || null;
 }
+
 function noteIndex(id = activeId) {
   return notes.findIndex((n) => n.id === id);
 }
@@ -66,7 +79,7 @@ function getEditorText() {
 function setEditorText(text) {
   // EFFICIENCY GAIN: Skip full rendering cycles if text strings match perfectly
   if (getEditorText() === text && editor.innerHTML !== "") return;
-  
+
   // Track cursor offsets precisely
   const selection = window.getSelection();
   let offset = 0;
@@ -83,7 +96,10 @@ function setEditorText(text) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  const highlighted = escaped.replace(URL_REGEX, '<span class="editor-link">$1</span>');
+  const highlighted = escaped.replace(
+    URL_REGEX,
+    '<span class="editor-link">$1</span>',
+  );
   editor.innerHTML = highlighted;
 
   restoreCursorPosition(offset);
@@ -96,7 +112,9 @@ function restoreCursorPosition(chars) {
   range.collapse(true);
 
   let nodeStack = [editor];
-  let node, found = false, stop = false;
+  let node,
+    found = false,
+    stop = false;
   let charCount = 0;
 
   while (!stop && (node = nodeStack.pop())) {
@@ -116,7 +134,7 @@ function restoreCursorPosition(chars) {
       }
     }
   }
-  
+
   selection.removeAllRanges();
   selection.addRange(range);
 }
@@ -144,27 +162,32 @@ function insertAtCursor(text) {
 function wrapSelection(prefix, suffix) {
   const selection = window.getSelection();
   if (selection.rangeCount === 0) return;
-  
+
   const start = getCursorPosition();
   const selectedText = selection.toString();
   const currentText = getEditorText();
-  
+
   const replacement = prefix + selectedText + suffix;
-  const newText = currentText.slice(0, start) + replacement + currentText.slice(start + selectedText.length);
-  
+  const newText =
+    currentText.slice(0, start) +
+    replacement +
+    currentText.slice(start + selectedText.length);
+
   setEditorText(newText);
   restoreCursorPosition(start + prefix.length + selectedText.length);
-  
+
   editor.dispatchEvent(new Event("input"));
   editor.focus();
 }
 
 // Track Modifier Keys for Cursors
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Control" || e.key === "Meta") document.body.classList.add("ctrl-pressed");
+  if (e.key === "Control" || e.key === "Meta")
+    document.body.classList.add("ctrl-pressed");
 });
 document.addEventListener("keyup", (e) => {
-  if (e.key === "Control" || e.key === "Meta") document.body.classList.remove("ctrl-pressed");
+  if (e.key === "Control" || e.key === "Meta")
+    document.body.classList.remove("ctrl-pressed");
 });
 
 // Click interception for Links inside Editor mode
@@ -180,18 +203,21 @@ function handleCopyAll() {
   const textToCopy = getEditorText();
   if (!textToCopy) return;
 
-  navigator.clipboard.writeText(textToCopy).then(() => {
-    const originalText = btnCopyAll.textContent;
-    btnCopyAll.textContent = "✅"; // Visual indicator success change
-    setTimeout(() => {
-      btnCopyAll.textContent = originalText;
-    }, 1500);
-  }).catch(err => {
-    console.error("Could not copy note text contents: ", err);
-  });
+  navigator.clipboard
+    .writeText(textToCopy)
+    .then(() => {
+      const originalText = btnCopyAll.textContent;
+      btnCopyAll.textContent = "✅"; // Visual indicator success change
+      setTimeout(() => {
+        btnCopyAll.textContent = originalText;
+      }, 1500);
+    })
+    .catch((err) => {
+      console.error("Could not copy note text contents: ", err);
+    });
 }
 
-// ── Undo / Redo History Tracking Logic 
+// ── Undo / Redo History Tracking Logic
 function initHistory() {
   historyStack = [getEditorText()];
   historyIndex = 0;
@@ -200,7 +226,7 @@ function initHistory() {
 function pushHistoryState() {
   if (isApplyingHistory) return;
   const currentText = getEditorText();
-  
+
   if (currentText === historyStack[historyIndex]) return;
 
   if (historyIndex < historyStack.length - 1) {
@@ -234,7 +260,7 @@ function applyHistoryState() {
   setEditorText(targetText);
   activeNote().content = targetText;
   activeNote().updatedAt = new Date().toISOString();
-  
+
   updateStats();
   if (previewOn) renderPreview();
   persist();
@@ -301,7 +327,7 @@ function load() {
 
       renderTabs();
       loadActiveNote();
-      
+
       btnPreview.classList.toggle("active", previewOn);
       if (previewOn) {
         renderPreview();
@@ -442,7 +468,7 @@ function loadActiveNote() {
   setEditorText(note.content);
   updateStats();
   updateLastEdited();
-  initHistory(); 
+  initHistory();
   if (previewOn) renderPreview();
   if (!previewOn) editor.focus();
 }
@@ -457,13 +483,95 @@ function renderPreview() {
       ? marked.parse(getEditorText())
       : marked(getEditorText());
   parsed = parsed.replace(/disabled="" /g, "");
+
+  // Set the standard HTML first
   preview.innerHTML = parsed;
+
+  // Extract headings to build the Floating Table of Contents
+  const headings = preview.querySelectorAll("h1, h2, h3");
+  if (headings.length > 0) {
+    const tocWrapper = document.createElement("div");
+    tocWrapper.id = "toc-wrapper";
+
+    const tocToggle = document.createElement("button");
+    tocToggle.id = "toc-toggle";
+    tocToggle.innerHTML = "≡ Contents";
+    tocToggle.title = "Table of Contents";
+
+    const tocDropdown = document.createElement("div");
+    tocDropdown.id = "toc-dropdown";
+    tocDropdown.className = "hidden"; // Closed by default
+
+    const tocList = document.createElement("ul");
+    tocList.id = "toc-list";
+
+    headings.forEach((heading, index) => {
+      if (!heading.id) {
+        heading.id = `heading-${index}-${heading.textContent
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")}`;
+      }
+      const li = document.createElement("li");
+      li.className = `toc-${heading.tagName.toLowerCase()}`;
+
+      const a = document.createElement("a");
+      a.href = `#${heading.id}`;
+      a.textContent = heading.textContent;
+
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+
+    // Smooth scroll intervention & auto-close overlay
+    tocList.addEventListener("click", (e) => {
+      if (e.target.tagName === "A") {
+        e.preventDefault();
+        const targetId = e.target.getAttribute("href").slice(1);
+        const targetElement = document.getElementById(targetId);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }
+        tocDropdown.classList.add("hidden");
+      }
+    });
+
+    tocToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      tocDropdown.classList.toggle("hidden");
+    });
+
+    tocDropdown.appendChild(tocList);
+    tocWrapper.appendChild(tocToggle);
+    tocWrapper.appendChild(tocDropdown);
+
+    // Prepend the floating wrapper so it sticks to the top-right and text wraps it
+    preview.prepend(tocWrapper);
+  }
 }
+
+// Global click listener to close ToC Dropdown when clicking outside
+document.addEventListener("click", (e) => {
+  const dropdown = document.getElementById("toc-dropdown");
+  const toggle = document.getElementById("toc-toggle");
+  if (dropdown && !dropdown.classList.contains("hidden")) {
+    if (
+      !dropdown.contains(e.target) &&
+      (!toggle || !toggle.contains(e.target))
+    ) {
+      dropdown.classList.add("hidden");
+    }
+  }
+});
 
 // Smart Links & Checkboxes inside Preview panel
 preview.addEventListener("click", async (e) => {
   const link = e.target.closest("a");
-  if (link && link.href) {
+
+  // Prevent catching our internal TOC clicks
+  if (link && link.href && !link.getAttribute("href").startsWith("#")) {
     e.preventDefault();
 
     if (link.href.includes("youtube.com/watch")) {
@@ -567,13 +675,15 @@ function toggleTheme() {
 
 function updateStats() {
   const text = getEditorText();
-  
+
   const words = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
   const chars = text.length;
   const lines = text === "" ? 1 : text.split("\n").length;
-  
-  const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim() !== "").length || (text.trim() !== "" ? 1 : 0);
-  
+
+  const paragraphs =
+    text.split(/\n\s*\n/).filter((p) => p.trim() !== "").length ||
+    (text.trim() !== "" ? 1 : 0);
+
   if (stats) {
     stats.textContent = `${words}w · ${chars}c · ${lines}L · ${paragraphs}P`;
   }
@@ -594,11 +704,14 @@ function updateStats() {
   });
 
   if (globalStats) {
-    const wordDisplay = totalWordsCount >= 1000 
-      ? (totalWordsCount / 1000).toFixed(1) + "kw" 
-      : totalWordsCount + "w";
-      
-    globalStats.textContent = `📁 Total: ${totalNotesCount} note${totalNotesCount !== 1 ? 's' : ''} · ${wordDisplay}`;
+    const wordDisplay =
+      totalWordsCount >= 1000
+        ? (totalWordsCount / 1000).toFixed(1) + "kw"
+        : totalWordsCount + "w";
+
+    globalStats.textContent = `📁 Total: ${totalNotesCount} note${
+      totalNotesCount !== 1 ? "s" : ""
+    } · ${wordDisplay}`;
   }
 }
 
@@ -606,11 +719,14 @@ document.addEventListener("selectionchange", () => {
   if (document.activeElement === editor) {
     const selection = window.getSelection();
     const selectedText = selection.toString();
-    
+
     if (selectedText.length > 0) {
-      const selWords = selectedText.trim() === "" ? 0 : selectedText.trim().split(/\s+/).length;
+      const selWords =
+        selectedText.trim() === ""
+          ? 0
+          : selectedText.trim().split(/\s+/).length;
       const selChars = selectedText.length;
-      
+
       if (selectionStats) {
         selectionStats.textContent = `[${selWords}w/${selChars}c]`;
       }
@@ -668,7 +784,9 @@ async function grabActiveTabInfo() {
         let s = time % 60;
         let timeStr =
           h > 0
-            ? `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+            ? `${h}:${m.toString().padStart(2, "0")}:${s
+                .toString()
+                .padStart(2, "0")}`
             : `${m}:${s.toString().padStart(2, "0")}`;
 
         let urlObj = new URL(url);
@@ -724,12 +842,14 @@ btnSearchToggle.addEventListener("click", toggleSearch);
 btnExport.addEventListener("click", exportMd);
 btnGrabTab.addEventListener("click", grabActiveTabInfo);
 btnCodeBlock.addEventListener("click", insertCodeBlock);
-btnCopyAll.addEventListener("click", handleCopyAll); // Added listener mapping
+btnCopyAll.addEventListener("click", handleCopyAll);
 
-// Formatting Tools Action Listeners
-if (btnBold) btnBold.addEventListener("click", () => wrapSelection("**", "**"));
-if (btnItalic) btnItalic.addEventListener("click", () => wrapSelection("*", "*"));
-if (btnStrikethrough) btnStrikethrough.addEventListener("click", () => wrapSelection("~~", "~~"));
+// "Open in Full Tab" Feature
+if (btnPopout) {
+  btnPopout.addEventListener("click", () => {
+    chrome.tabs.create({ url: chrome.runtime.getURL("popup.html?mode=tab") });
+  });
+}
 
 searchInput.addEventListener("input", renderTabs);
 btnDelete.addEventListener("click", () => {
@@ -743,18 +863,18 @@ editor.addEventListener("input", () => {
   const text = getEditorText();
   activeNote().content = text;
   activeNote().updatedAt = new Date().toISOString();
-  
+
   if (URL_REGEX.test(text)) {
     setEditorText(text);
   }
-  
+
   updateStats();
   persist();
 
   clearTimeout(typingHistoryTimeout);
   typingHistoryTimeout = setTimeout(() => {
     pushHistoryState();
-  }, 350); 
+  }, 350);
 });
 
 noteTitle.addEventListener("input", () => {
@@ -780,7 +900,7 @@ searchInput.addEventListener("keydown", (e) => {
 // ── Keyboard shortcuts
 document.addEventListener("keydown", (e) => {
   const ctrl = e.ctrlKey || e.metaKey;
-  
+
   if (ctrl && !e.shiftKey && e.key === "z") {
     e.preventDefault();
     handleUndo();
