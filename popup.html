@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notepad</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header id="header">
+        <div id="tab-bar">
+          <div id="tabs-scroll">
+            <div id="tabs-list"></div>
+          </div>
+          <div id="search-wrap" class="hidden">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search notes by title or content..."
+              autocomplete="off"
+            />
+          </div>
+          <button id="btn-search-toggle" title="Search notes (Ctrl+F)">
+            ⌕
+          </button>
+          <button id="btn-new-tab" title="New note (Ctrl+T)">+</button>
+        </div>
+        <div id="toolbar">
+          <span id="note-title-wrap">
+            <input
+              id="note-title"
+              type="text"
+              placeholder="Untitled"
+              spellcheck="false"
+              maxlength="40"
+            />
+          </span>
+          <div id="toolbar-actions">
+            <button
+              id="btn-copy-all"
+              title="Copy All Note Content"
+              class="icon-btn"
+              style="color: var(--yellow-b)"
+            >
+              🖇️
+            </button>
+
+            <button
+              id="btn-grab-tab"
+              title="Grab Tab/YT Timestamp (Ctrl+Shift+Y)"
+              class="icon-btn"
+              style="color: var(--orange-b)"
+            >
+              🔗
+            </button>
+            <button
+              id="btn-code-block"
+              title="Insert Code Block (Ctrl+Shift+C)"
+              class="icon-btn"
+              style="color: var(--green-b)"
+            >
+              { }
+            </button>
+            <div
+              style="
+                width: 1px;
+                height: 16px;
+                background: var(--bg2);
+                margin: 0 4px;
+              "
+            ></div>
+
+            <button
+              id="btn-theme"
+              title="Toggle Light/Dark Theme"
+              class="icon-btn"
+            >
+              ◐
+            </button>
+            <button
+              id="btn-preview"
+              title="Toggle preview (Ctrl+P)"
+              class="icon-btn"
+            >
+              ◈
+            </button>
+            <button id="btn-export" title="Export as .md" class="icon-btn">
+              ↓
+            </button>
+            <button
+              id="btn-delete"
+              title="Delete this note"
+              class="icon-btn danger"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main id="editor-wrap">
+        <div id="editor" contenteditable="true" spellcheck="true"></div>
+        <div id="preview" class="hidden"></div>
+      </main>
+
+      <footer
+        id="statusbar"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 10px;
+          height: var(--footer-h);
+          gap: 4px;
+          box-sizing: border-box;
+        "
+      >
+        <div
+          class="status-left"
+          style="
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            white-space: nowrap;
+            width: 130px;
+            flex-shrink: 0;
+          "
+        >
+          <span id="save-status" style="display: inline-block; width: 50px"
+            >All saved</span
+          >
+          <span
+            id="last-edited"
+            style="color: var(--bg3); overflow: hidden; text-overflow: ellipsis"
+          ></span>
+        </div>
+
+        <div
+          class="status-center"
+          style="
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            flex: 1;
+            overflow: hidden;
+            color: var(--color-text-secondary, var(--bg3));
+          "
+        >
+          <span
+            id="selection-stats"
+            style="
+              color: var(--yellow-b);
+              font-weight: bold;
+              display: inline-block;
+              min-width: 48px;
+              text-align: left;
+            "
+            >[Ready]</span
+          >
+          <span style="color: var(--bg2)">•</span>
+          <span id="stats">0w · 0c · 1L · 1P</span>
+        </div>
+
+        <div
+          class="status-right"
+          style="
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            justify-content: flex-end;
+            white-space: nowrap;
+            width: 170px;
+            flex-shrink: 0;
+          "
+        >
+          <span id="reading-time" style="opacity: 0.85">⏱️ 0m read</span>
+          <span style="color: var(--bg2)">|</span>
+          <span id="global-stats" style="color: var(--yellow-b)"
+            >📁 Total: 0 notes · 0w</span
+          >
+        </div>
+      </footer>
+    </div>
+
+    <script src="marked.min.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
