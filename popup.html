@@ -22,9 +22,43 @@
             />
           </div>
           <button id="btn-search-toggle" title="Search notes (Ctrl+F)">
-            ⌕
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1em"
+              height="1em"
+              viewBox="0 0 24 24"
+            >
+              <title xmlns="">search-outline</title>
+              <g fill="none" stroke="currentColor">
+                <circle cx="11" cy="11" r="5.5" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m15 15l4 4"
+                />
+              </g>
+            </svg>
           </button>
-          <button id="btn-new-tab" title="New note (Ctrl+T)">+</button>
+          <button id="btn-new-tab" title="New note (Ctrl+T)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1em"
+              height="1em"
+              viewBox="0 0 24 24"
+            >
+              <title xmlns="">new-tab</title>
+              <g fill="none" stroke="currentColor" stroke-width="1.5">
+                <path
+                  d="M2 19V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M2 7h20M9 14h3m3 0h-3m0 0v-3m0 3v3"
+                />
+              </g>
+            </svg>
+          </button>
         </div>
         <div id="toolbar">
           <span id="note-title-wrap">
@@ -37,13 +71,56 @@
             />
           </span>
           <div id="toolbar-actions">
+            <a
+              href="https://github.com/armaneousuf/notepad-extension#shortcuts"
+              target="_blank"
+              id="btn-shortcuts-link"
+              title="View App Shortcuts Matrix (GitHub)"
+              class="icon-btn"
+              style="
+                text-decoration: none;
+                font-size: 14px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">guide-line</title>
+                <path
+                  fill="currentColor"
+                  d="M13 8v8a3 3 0 0 1-3 3H7.83a3.001 3.001 0 1 1 0-2H10a1 1 0 0 0 1-1V8a3 3 0 0 1 3-3h3V2l5 4l-5 4V7h-3a1 1 0 0 0-1 1M5 19a1 1 0 1 0 0-2a1 1 0 0 0 0 2"
+                />
+              </svg>
+            </a>
             <button
               id="btn-copy-all"
               title="Copy All Note Content"
               class="icon-btn"
               style="color: var(--yellow-b)"
             >
-              🖇️
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">copy-line</title>
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-miterlimit="10"
+                  stroke-width="1.5"
+                  d="M6 15h-.6C4.07 15 3 13.93 3 12.6V5.4C3 4.07 4.07 3 5.4 3h7.2C13.93 3 15 4.07 15 5.4V6m-3.6 3h7.2a2.4 2.4 0 0 1 2.4 2.4v7.2a2.4 2.4 0 0 1-2.4 2.4h-7.2A2.4 2.4 0 0 1 9 18.6v-7.2A2.4 2.4 0 0 1 11.4 9"
+                />
+              </svg>
             </button>
 
             <button
@@ -52,7 +129,22 @@
               class="icon-btn"
               style="color: var(--orange-b)"
             >
-              🔗
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">video</title>
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M3 15.75v-7.5a2 2 0 0 1 2-2h8.5a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2m17.168-8.759l-4 3.563a.5.5 0 0 0-.168.373v1.778a.5.5 0 0 0 .168.373l4 3.563a.5.5 0 0 0 .832-.374V7.365a.5.5 0 0 0-.832-.374"
+                />
+              </svg>
             </button>
             <button
               id="btn-code-block"
@@ -60,7 +152,18 @@
               class="icon-btn"
               style="color: var(--green-b)"
             >
-              { }
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">code-outline</title>
+                <path
+                  fill="currentColor"
+                  d="M14.18 4.276a.75.75 0 0 1 .531.918l-3.973 14.83a.75.75 0 0 1-1.45-.389l3.974-14.83a.75.75 0 0 1 .919-.53m2.262 3.053a.75.75 0 0 1 1.059-.056l1.737 1.564c.737.662 1.347 1.212 1.767 1.71c.44.525.754 1.088.754 1.784c0 .695-.313 1.258-.754 1.782c-.42.499-1.03 1.049-1.767 1.711l-1.737 1.564a.75.75 0 0 1-1.004-1.115l1.697-1.527c.788-.709 1.319-1.19 1.663-1.598c.33-.393.402-.622.402-.818s-.072-.424-.402-.817c-.344-.409-.875-.89-1.663-1.598l-1.697-1.527a.75.75 0 0 1-.056-1.06m-8.94 1.06a.75.75 0 1 0-1.004-1.115L4.761 8.836c-.737.662-1.347 1.212-1.767 1.71c-.44.525-.754 1.088-.754 1.784c0 .695.313 1.258.754 1.782c.42.499 1.03 1.049 1.767 1.711l1.737 1.564a.75.75 0 0 0 1.004-1.115l-1.697-1.527c-.788-.709-1.319-1.19-1.663-1.598c-.33-.393-.402-.622-.402-.818s.072-.424.402-.817c.344-.409.875-.89 1.663-1.598z"
+                />
+              </svg>
             </button>
             <div
               style="
@@ -76,31 +179,97 @@
               title="Open in full tab (Zen Mode)"
               class="icon-btn"
             >
-              ⤢
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">screen-full-light</title>
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M4 9V6a2 2 0 0 1 2-2h3m11 11v3a2 2 0 0 1-2 2h-3m0-16h3a2 2 0 0 1 2 2v3M9 20H6a2 2 0 0 1-2-2v-3"
+                />
+              </svg>
             </button>
             <button
               id="btn-theme"
               title="Toggle Light/Dark Theme"
               class="icon-btn"
             >
-              ◐
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 20 20"
+              >
+                <title xmlns="">dark-theme-20-regular</title>
+                <path
+                  fill="currentColor"
+                  d="M10 3a7 7 0 1 1 0 14zm0-1a8 8 0 1 0 0 16a8 8 0 0 0 0-16"
+                />
+              </svg>
             </button>
             <button
               id="btn-preview"
               title="Toggle preview (Ctrl+P)"
               class="icon-btn"
             >
-              ◈
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 16 16"
+              >
+                <title xmlns="">open-preview</title>
+                <path
+                  fill="currentColor"
+                  d="M13.5 1h-9A2.503 2.503 0 0 0 2 3.5v2.776a4.4 4.4 0 0 1 1-.226V3.499c0-.827.673-1.5 1.5-1.5h4v11.386l1.057 1.057c.157.149.274.344.35.557H13.5c1.378 0 2.5-1.122 2.5-2.5V3.5C16 2.122 14.878 1 13.5 1M15 12.5c0 .827-.673 1.5-1.5 1.5h-4V2h4c.827 0 1.5.673 1.5 1.5zm-8.71.09c.45-.58.71-1.31.71-2.09C7 8.57 5.43 7 3.5 7S0 8.57 0 10.5S1.57 14 3.5 14c.78 0 1.51-.26 2.09-.71l2.56 2.56c.09.1.22.15.35.15s.26-.05.35-.15c.2-.19.2-.51 0-.7zM5.5 12a2.5 2.5 0 0 1-2 1a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 2 4"
+                />
+              </svg>
             </button>
             <button id="btn-export" title="Export as .md" class="icon-btn">
-              ↓
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">export</title>
+                <g fill="none">
+                  <path
+                    fill="currentColor"
+                    d="m12 5l-.707-.707l.707-.707l.707.707zm1 9a1 1 0 1 1-2 0zM6.293 9.293l5-5l1.414 1.414l-5 5zm6.414-5l5 5l-1.414 1.414l-5-5zM13 5v9h-2V5z"
+                  />
+                  <path
+                    stroke="currentColor"
+                    stroke-width="2"
+                    d="M5 16v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1"
+                  />
+                </g>
+              </svg>
             </button>
             <button
               id="btn-delete"
               title="Delete this note"
               class="icon-btn danger"
             >
-              ✕
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <title xmlns="">delete-outline-rounded</title>
+                <path
+                  fill="currentColor"
+                  d="M7.616 20q-.667 0-1.141-.475T6 18.386V6h-.5q-.213 0-.356-.144T5 5.499t.144-.356T5.5 5H9q0-.31.23-.54t.54-.23h4.46q.31 0 .54.23T15 5h3.5q.213 0 .356.144t.144.357t-.144.356T18.5 6H18v12.385q0 .666-.475 1.14t-1.14.475zM17 6H7v12.385q0 .269.173.442t.443.173h8.769q.269 0 .442-.173t.173-.442zm-6.335 10.856q.143-.144.143-.356v-8q0-.213-.144-.356T10.307 8t-.356.144t-.143.356v8q0 .213.144.356q.144.144.356.144q.213 0 .357-.144m3.384 0q.143-.144.143-.356v-8q0-.213-.144-.356Q13.904 8 13.692 8q-.213 0-.357.144t-.143.356v8q0 .213.144.356t.357.144t.356-.144M7 6v13z"
+                />
+              </svg>
             </button>
           </div>
         </div>
@@ -183,10 +352,10 @@
             flex-shrink: 0;
           "
         >
-          <span id="reading-time" style="opacity: 0.85">⏱️ 0m read</span>
+          <span id="reading-time" style="opacity: 0.85"> 0m read</span>
           <span style="color: var(--bg2)">|</span>
           <span id="global-stats" style="color: var(--yellow-b)"
-            >📁 Total: 0 notes · 0w</span
+            > Total: 0 notes · 0w</span
           >
         </div>
       </footer>
