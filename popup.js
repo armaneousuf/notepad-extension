@@ -27,7 +27,7 @@ let isLightMode = false;
 let isSearching = false;
 
 // Headings Collapsible State (keys: noteId, value: Set of hidden heading IDs)
-let collapsedStates = {};
+let collapsedStates = {}; 
 
 // Undo/Redo States
 let historyStack = [];
@@ -534,10 +534,7 @@ function renderPreview() {
         .replace(/[^a-z0-9]+/g, "-")}`;
     }
     // Restore preserved collapsible states
-    if (
-      collapsedStates[activeId] &&
-      collapsedStates[activeId].has(heading.id)
-    ) {
+    if (collapsedStates[activeId] && collapsedStates[activeId].has(heading.id)) {
       heading.classList.add("collapsed");
     }
   });
@@ -623,23 +620,20 @@ document.addEventListener("click", (e) => {
 // Smart Links, Headings & Checkboxes inside Preview panel
 preview.addEventListener("click", async (e) => {
   // 1. Handle Heading Collapses
-  const heading = e.target.closest(
-    "#preview > h1, #preview > h2, #preview > h3, #preview > h4, #preview > h5, #preview > h6",
-  );
-  if (heading && !e.target.closest("a")) {
-    // Do not fold if the user explicitly clicked an embedded link
+  const heading = e.target.closest("#preview > h1, #preview > h2, #preview > h3, #preview > h4, #preview > h5, #preview > h6");
+  if (heading && !e.target.closest("a")) { // Do not fold if the user explicitly clicked an embedded link
     heading.classList.toggle("collapsed");
-
+    
     if (!collapsedStates[activeId]) {
       collapsedStates[activeId] = new Set();
     }
-
+    
     if (heading.classList.contains("collapsed")) {
       collapsedStates[activeId].add(heading.id);
     } else {
       collapsedStates[activeId].delete(heading.id);
     }
-
+    
     updatePreviewVisibility();
     return;
   }
