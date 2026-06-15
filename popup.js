@@ -22,7 +22,7 @@ const STORAGE_THEME = "notepad_theme";
 let notes = [];
 let activeId = null;
 let statusTimer = null;
-let previewOn = true;
+let previewOn = false;
 let isLightMode = false;
 let isSearching = false;
 
@@ -521,6 +521,26 @@ function renderPreview() {
       ? marked.parse(getEditorText())
       : marked(getEditorText());
   parsed = parsed.replace(/disabled="" /g, "");
+
+  // 1. Beautification Tag: Turns ::anything:: into <span class="note-tag">anything</span>
+  parsed = parsed.replace(/::([^:]+)::/g, '<span class="note-tag">$1</span>');
+
+  // 2. Smart Date Parsing: Matches DD.MM.YYYY, DD/MM/YYYY, or YYYY-MM-DD
+  const DATE_REGEX = /\b(\d{1,2})[\./-](\d{1,2})[\./-](\d{4})\b|\b(\d{4})-(\d{2})-(\d{2})\b/g;
+  parsed = parsed.replace(DATE_REGEX, (match, d1, m1, y1, y2, m2, d2) => {
+    let day = d1 || d2;
+    let month = m1 || m2;
+    let year = y1 || y2;
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthIndex = parseInt(month, 10) - 1;
+    const monthName = months[monthIndex] || month;
+
+    // Format output cleanly (e.g., "26 May 2026")
+    const formattedDate = `${parseInt(day, 10)} ${monthName} ${year}`;
+    
+    return `<span class="date-badge"><span class="date-icon"></span> ${formattedDate}</span>`;
+  });
 
   // Set the standard HTML first
   preview.innerHTML = parsed;

@@ -640,3 +640,57 @@ body.ctrl-pressed #editor .editor-link {
   font-size: 0.9em;
   opacity: 0.9;
 }
+
+/* Custom Note Beautification Tag (::text::) */
+#preview .note-tag {
+  background-color: rgba(69, 133, 136, 0.15);
+  color: var(--blue-b);
+  border: 1px solid var(--blue);
+  padding: 1px 6px;
+  border-radius: 12px;
+  font-family: var(--font-ui);
+  font-size: 0.9em;
+  font-weight: 600;
+  display: inline-block;
+  margin: 0 2px;
+  letter-spacing: 0.03em;
+}
+
+/* Smart Date Badge UI */
+#preview .date-badge {
+  background: var(--bg1);
+  color: var(--orange-b);
+  border: 1px solid var(--bg2);
+  padding: 2px 8px;
+  border-radius: var(--radius);
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: 0.9em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  margin: 0 2px;
+  transition: border-color 0.15s;
+}
+
+#preview .date-badge:hover {
+  border-color: var(--orange);
+}
+
+#preview .date-badge .date-icon {
+  font-size: 1em;
+  opacity: 0.9;
+}
+
+body.theme-light #preview .note-tag {
+  background-color: rgba(7, 102, 120, 0.1);
+  color: var(--blue);
+  border-color: var(--blue-b);
+}
+
+body.theme-light #preview .date-badge {
+  background: var(--bg1);
+  color: var(--orange);
+  border-color: var(--bg2);
+}
