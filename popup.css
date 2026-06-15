@@ -377,7 +377,10 @@ body.ctrl-pressed #editor .editor-link {
 }
 #preview h1,
 #preview h2,
-#preview h3 {
+#preview h3,
+#preview h4,
+#preview h5,
+#preview h6 {
   color: var(--yellow-b);
   margin: 1em 0 0.4em;
   font-family: var(--font-ui);
@@ -395,6 +398,53 @@ body.ctrl-pressed #editor .editor-link {
   font-size: 1em;
   color: var(--orange-b);
 }
+#preview h4,
+#preview h5,
+#preview h6 {
+  font-size: 0.95em;
+  color: var(--aqua-b);
+}
+
+/* Collapsible Headings */
+#preview > h1,
+#preview > h2,
+#preview > h3,
+#preview > h4,
+#preview > h5,
+#preview > h6 {
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+#preview > h1::before,
+#preview > h2::before,
+#preview > h3::before,
+#preview > h4::before,
+#preview > h5::before,
+#preview > h6::before {
+  content: "↓";
+  font-size: 0.6em;
+  display: inline-block;
+  margin-right: 8px;
+  color: var(--bg3);
+  transition: transform 0.15s ease-in-out;
+  vertical-align: middle;
+}
+#preview > h1:hover::before,
+#preview > h2:hover::before,
+#preview > h3:hover::before,
+#preview > h4:hover::before,
+#preview > h5:hover::before,
+#preview > h6:hover::before {
+  color: var(--fg4);
+}
+#preview > .collapsed::before {
+  transform: rotate(-90deg);
+}
+.hidden-collapse {
+  display: none !important;
+}
+
 #preview p {
   margin: 0.5em 0;
 }

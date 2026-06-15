@@ -26,6 +26,9 @@ let previewOn = false;
 let isLightMode = false;
 let isSearching = false;
 
+// Headings Collapsible State (keys: noteId, value: Set of hidden heading IDs)
+let collapsedStates = {};
+
 // Undo/Redo States
 let historyStack = [];
 let historyIndex = -1;
@@ -464,6 +467,12 @@ function switchTo(id) {
 function loadActiveNote() {
   const note = activeNote();
   if (!note) return;
+
+  // Initialize heading collapsible state for this note
+  if (!collapsedStates[activeId]) {
+    collapsedStates[activeId] = new Set();
+  }
+
   noteTitle.value = note.title;
   setEditorText(note.content);
   updateStats();
@@ -471,6 +480,35 @@ function loadActiveNote() {
   initHistory();
   if (previewOn) renderPreview();
   if (!previewOn) editor.focus();
+}
+
+// Adjusts the visibility of child elements to properly collapse sub-headings
+function updatePreviewVisibility() {
+  let hideLevel = Infinity;
+  const children = Array.from(preview.children);
+  for (const el of children) {
+    if (el.id === "toc-wrapper") continue;
+
+    const isHeading = /^H[1-6]$/.test(el.tagName);
+    let level = 7;
+
+    if (isHeading) {
+      level = parseInt(el.tagName.substring(1));
+      if (level <= hideLevel) {
+        hideLevel = Infinity; // We reached a heading of equal or higher priority. Reset.
+      }
+    }
+
+    if (hideLevel < Infinity) {
+      el.classList.add("hidden-collapse");
+    } else {
+      el.classList.remove("hidden-collapse");
+    }
+
+    if (isHeading && el.classList.contains("collapsed") && level < hideLevel) {
+      hideLevel = level;
+    }
+  }
 }
 
 function renderPreview() {
@@ -487,9 +525,26 @@ function renderPreview() {
   // Set the standard HTML first
   preview.innerHTML = parsed;
 
-  // Extract headings to build the Floating Table of Contents
-  const headings = preview.querySelectorAll("h1, h2, h3");
-  if (headings.length > 0) {
+  // 1. Process ALL headings to maintain their collapsed state
+  const allHeadings = preview.querySelectorAll("h1, h2, h3, h4, h5, h6");
+  allHeadings.forEach((heading, index) => {
+    if (!heading.id) {
+      heading.id = `heading-${index}-${heading.textContent
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")}`;
+    }
+    // Restore preserved collapsible states
+    if (
+      collapsedStates[activeId] &&
+      collapsedStates[activeId].has(heading.id)
+    ) {
+      heading.classList.add("collapsed");
+    }
+  });
+
+  // 2. Extract top headings to build the Floating Table of Contents
+  const tocHeadings = preview.querySelectorAll("h1, h2, h3");
+  if (tocHeadings.length > 0) {
     const tocWrapper = document.createElement("div");
     tocWrapper.id = "toc-wrapper";
 
@@ -505,12 +560,7 @@ function renderPreview() {
     const tocList = document.createElement("ul");
     tocList.id = "toc-list";
 
-    headings.forEach((heading, index) => {
-      if (!heading.id) {
-        heading.id = `heading-${index}-${heading.textContent
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")}`;
-      }
+    tocHeadings.forEach((heading) => {
       const li = document.createElement("li");
       li.className = `toc-${heading.tagName.toLowerCase()}`;
 
@@ -529,6 +579,7 @@ function renderPreview() {
         const targetId = e.target.getAttribute("href").slice(1);
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
+          // If jumping to collapsed section, maybe uncollapse it
           targetElement.scrollIntoView({
             behavior: "smooth",
             block: "start",
@@ -550,6 +601,9 @@ function renderPreview() {
     // Prepend the floating wrapper so it sticks to the top-right and text wraps it
     preview.prepend(tocWrapper);
   }
+
+  // Hide the sections nested inside the collapsed headings
+  updatePreviewVisibility();
 }
 
 // Global click listener to close ToC Dropdown when clicking outside
@@ -566,8 +620,31 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Smart Links & Checkboxes inside Preview panel
+// Smart Links, Headings & Checkboxes inside Preview panel
 preview.addEventListener("click", async (e) => {
+  // 1. Handle Heading Collapses
+  const heading = e.target.closest(
+    "#preview > h1, #preview > h2, #preview > h3, #preview > h4, #preview > h5, #preview > h6",
+  );
+  if (heading && !e.target.closest("a")) {
+    // Do not fold if the user explicitly clicked an embedded link
+    heading.classList.toggle("collapsed");
+
+    if (!collapsedStates[activeId]) {
+      collapsedStates[activeId] = new Set();
+    }
+
+    if (heading.classList.contains("collapsed")) {
+      collapsedStates[activeId].add(heading.id);
+    } else {
+      collapsedStates[activeId].delete(heading.id);
+    }
+
+    updatePreviewVisibility();
+    return;
+  }
+
+  // 2. Handle Markdown links
   const link = e.target.closest("a");
 
   // Prevent catching our internal TOC clicks
