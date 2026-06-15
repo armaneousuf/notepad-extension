@@ -694,3 +694,61 @@ body.theme-light #preview .date-badge {
   color: var(--orange);
   border-color: var(--bg2);
 }
+
+/* !!Highlight Tag Style!! */
+#preview .note-highlight {
+  background-color: rgba(204, 36, 29, 0.12); /* Subtle Gruvbox Red tint */
+  color: var(--red-b);
+  border: 1px solid var(--red);
+  padding: 1px 6px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 2px;
+}
+
+#preview .note-highlight .hl-icon {
+  font-size: 11px;
+}
+
+/* ((Info/Idea Block Style)) */
+#preview .note-idea {
+  background-color: rgba(214, 93, 14, 0.08); /* Subtle Gruvbox Orange tint */
+  border-left: 3px solid var(--orange-b);
+  padding: 8px 12px;
+  margin: 10px 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+#preview .note-idea .idea-icon {
+  font-size: 14px;
+  line-height: 1.5;
+  user-select: none;
+}
+
+#preview .note-idea .idea-content {
+  color: var(--fg2);
+  font-style: italic;
+  flex: 1;
+}
+
+/* ── Light Theme Adaptations ── */
+body.theme-light #preview .note-highlight {
+  background-color: rgba(157, 0, 6, 0.08);
+  color: var(--red);
+  border-color: var(--red-b);
+}
+
+body.theme-light #preview .note-idea {
+  background-color: rgba(175, 58, 3, 0.05);
+  border-left-color: var(--orange);
+}
+
+body.theme-light #preview .note-idea .idea-content {
+  color: var(--fg);
+}

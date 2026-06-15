@@ -27,7 +27,7 @@ let isLightMode = false;
 let isSearching = false;
 
 // Headings Collapsible State (keys: noteId, value: Set of hidden heading IDs)
-let collapsedStates = {}; 
+let collapsedStates = {};
 
 // Undo/Redo States
 let historyStack = [];
@@ -526,21 +526,47 @@ function renderPreview() {
   parsed = parsed.replace(/::([^:]+)::/g, '<span class="note-tag">$1</span>');
 
   // 2. Smart Date Parsing: Matches DD.MM.YYYY, DD/MM/YYYY, or YYYY-MM-DD
-  const DATE_REGEX = /\b(\d{1,2})[\./-](\d{1,2})[\./-](\d{4})\b|\b(\d{4})-(\d{2})-(\d{2})\b/g;
+  const DATE_REGEX =
+    /\b(\d{1,2})[\./-](\d{1,2})[\./-](\d{4})\b|\b(\d{4})-(\d{2})-(\d{2})\b/g;
   parsed = parsed.replace(DATE_REGEX, (match, d1, m1, y1, y2, m2, d2) => {
     let day = d1 || d2;
     let month = m1 || m2;
     let year = y1 || y2;
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const monthIndex = parseInt(month, 10) - 1;
     const monthName = months[monthIndex] || month;
 
     // Format output cleanly (e.g., "26 May 2026")
     const formattedDate = `${parseInt(day, 10)} ${monthName} ${year}`;
-    
+
     return `<span class="date-badge"><span class="date-icon"></span> ${formattedDate}</span>`;
   });
+
+  // 3. Highlight Tag: Turns !!text!! into an eye-catching warning/accent pill
+  parsed = parsed.replace(
+    /!!([^!]+)!!/g,
+    '<span class="note-highlight"><span class="hl-icon">⚠️</span> $1</span>',
+  );
+
+  // 4. Info/Idea Block: Turns ((text)) into a distinct block layout for clean notes
+  parsed = parsed.replace(
+    /\(\(([^)]+)\)\)/g,
+    '<div class="note-idea"><span class="idea-icon">💡</span><div class="idea-content">$1</div></div>',
+  );
 
   // Set the standard HTML first
   preview.innerHTML = parsed;
@@ -554,7 +580,10 @@ function renderPreview() {
         .replace(/[^a-z0-9]+/g, "-")}`;
     }
     // Restore preserved collapsible states
-    if (collapsedStates[activeId] && collapsedStates[activeId].has(heading.id)) {
+    if (
+      collapsedStates[activeId] &&
+      collapsedStates[activeId].has(heading.id)
+    ) {
       heading.classList.add("collapsed");
     }
   });
@@ -640,20 +669,23 @@ document.addEventListener("click", (e) => {
 // Smart Links, Headings & Checkboxes inside Preview panel
 preview.addEventListener("click", async (e) => {
   // 1. Handle Heading Collapses
-  const heading = e.target.closest("#preview > h1, #preview > h2, #preview > h3, #preview > h4, #preview > h5, #preview > h6");
-  if (heading && !e.target.closest("a")) { // Do not fold if the user explicitly clicked an embedded link
+  const heading = e.target.closest(
+    "#preview > h1, #preview > h2, #preview > h3, #preview > h4, #preview > h5, #preview > h6",
+  );
+  if (heading && !e.target.closest("a")) {
+    // Do not fold if the user explicitly clicked an embedded link
     heading.classList.toggle("collapsed");
-    
+
     if (!collapsedStates[activeId]) {
       collapsedStates[activeId] = new Set();
     }
-    
+
     if (heading.classList.contains("collapsed")) {
       collapsedStates[activeId].add(heading.id);
     } else {
       collapsedStates[activeId].delete(heading.id);
     }
-    
+
     updatePreviewVisibility();
     return;
   }
