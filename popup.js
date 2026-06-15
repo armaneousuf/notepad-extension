@@ -22,7 +22,7 @@ const STORAGE_THEME = "notepad_theme";
 let notes = [];
 let activeId = null;
 let statusTimer = null;
-let previewOn = false;
+let previewOn = true;
 let isLightMode = false;
 let isSearching = false;
 

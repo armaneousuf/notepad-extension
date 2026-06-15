@@ -55,6 +55,11 @@ body.theme-light {
   --orange-b: #c35622;
 }
 
+::selection {
+  background-color: var(--yellow-b);
+  color: #1d2021;
+}
+
 /* Reset */
 *,
 *::before,
