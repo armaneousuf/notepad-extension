@@ -75,7 +75,7 @@ function noteIndex(id = activeId) {
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
 function getEditorText() {
-  // Using textContent ensures a 1:1 match with the Selection Range string length 
+  // Using textContent ensures a 1:1 match with the Selection Range string length
   // without native browser innerText formatting breaking the offset calculation.
   return editor.textContent;
 }
@@ -88,7 +88,7 @@ function setEditorText(text) {
 
   let highlighted = escaped.replace(
     URL_REGEX,
-    '<span class="editor-link">$1</span>'
+    '<span class="editor-link">$1</span>',
   );
 
   if (text.endsWith("\n")) {
@@ -99,7 +99,7 @@ function setEditorText(text) {
 
   const selection = window.getSelection();
   let offset = null;
-  
+
   if (document.activeElement === editor && selection.rangeCount > 0) {
     offset = getCursorPosition();
   }
@@ -127,7 +127,8 @@ function restoreCursorPosition(chars) {
   range.collapse(true);
 
   let nodeStack = [editor];
-  let node, found = false;
+  let node,
+    found = false;
   let charCount = 0;
 
   while (!found && (node = nodeStack.pop())) {
@@ -854,8 +855,8 @@ function updateStats() {
         : totalWordsCount + "w";
 
     globalStats.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" style="vertical-align: -0.15em; margin-right: 2px;"><title>file</title><path fill="currentColor" d="M14 11a3 3 0 0 1-3-3V4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-8zm-2-3a2 2 0 0 0 2 2h3.59L12 4.41zM7 3h5l7 7v9a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3"/></svg> Total: ${totalNotesCount} note${
-  totalNotesCount !== 1 ? "s" : ""
-} · ${wordDisplay}`;
+      totalNotesCount !== 1 ? "s" : ""
+    } · ${wordDisplay}`;
   }
 }
 
@@ -1141,7 +1142,7 @@ editor.addEventListener("keydown", (e) => {
   }
 
   if (e.key === "Enter") {
-    e.preventDefault(); // Block default browser <div> line-breaks natively 
+    e.preventDefault(); // Block default browser <div> line-breaks natively
     const cursorPos = getCursorPosition();
     const currentText = getEditorText();
     const currentLine = currentText.slice(0, cursorPos).split("\n").pop();
@@ -1161,7 +1162,7 @@ editor.addEventListener("keydown", (e) => {
         insertAtCursor(insertText);
       }
     } else {
-        insertAtCursor("\n"); // Normal Return handling
+      insertAtCursor("\n"); // Normal Return handling
     }
   }
 });
