@@ -72,62 +72,71 @@ function noteIndex(id = activeId) {
   return notes.findIndex((n) => n.id === id);
 }
 
-// ── Link Detection & Efficient Highlighting Engine ─────────────────
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
 function getEditorText() {
-  return editor.innerText.replace(/\n$/, "");
+  // Using textContent ensures a 1:1 match with the Selection Range string length 
+  // without native browser innerText formatting breaking the offset calculation.
+  return editor.textContent;
 }
 
 function setEditorText(text) {
-  // EFFICIENCY GAIN: Skip full rendering cycles if text strings match perfectly
-  if (getEditorText() === text && editor.innerHTML !== "") return;
-
-  // Track cursor offsets precisely
-  const selection = window.getSelection();
-  let offset = 0;
-  if (selection.rangeCount > 0) {
-    const range = selection.getRangeAt(0);
-    const preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(editor);
-    preCaretRange.setEnd(range.endContainer, range.endOffset);
-    offset = preCaretRange.toString().length;
-  }
-
   const escaped = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  const highlighted = escaped.replace(
+  let highlighted = escaped.replace(
     URL_REGEX,
-    '<span class="editor-link">$1</span>',
+    '<span class="editor-link">$1</span>'
   );
+
+  if (text.endsWith("\n")) {
+    highlighted += "<br>";
+  }
+
+  if (editor.innerHTML === highlighted) return;
+
+  const selection = window.getSelection();
+  let offset = null;
+  
+  if (document.activeElement === editor && selection.rangeCount > 0) {
+    offset = getCursorPosition();
+  }
+
   editor.innerHTML = highlighted;
 
-  restoreCursorPosition(offset);
+  if (offset !== null) {
+    restoreCursorPosition(offset);
+  }
 }
 
 function restoreCursorPosition(chars) {
   const selection = window.getSelection();
   const range = document.createRange();
+
+  if (editor.childNodes.length === 0 || chars === 0) {
+    range.selectNodeContents(editor);
+    range.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return;
+  }
+
   range.selectNodeContents(editor);
   range.collapse(true);
 
   let nodeStack = [editor];
-  let node,
-    found = false,
-    stop = false;
+  let node, found = false;
   let charCount = 0;
 
-  while (!stop && (node = nodeStack.pop())) {
+  while (!found && (node = nodeStack.pop())) {
     if (node.nodeType === 3) {
       const nextCharCount = charCount + node.length;
-      if (!found && chars >= charCount && chars <= nextCharCount) {
+      if (chars <= nextCharCount) {
         range.setStart(node, chars - charCount);
-        range.setEnd(node, chars - charCount);
+        range.collapse(true);
         found = true;
-        stop = true;
       }
       charCount = nextCharCount;
     } else {
@@ -136,6 +145,11 @@ function restoreCursorPosition(chars) {
         nodeStack.push(node.childNodes[i]);
       }
     }
+  }
+
+  if (!found) {
+    range.selectNodeContents(editor);
+    range.collapse(false);
   }
 
   selection.removeAllRanges();
@@ -445,7 +459,10 @@ function toggleSearch() {
     btnSearchToggle.classList.remove("active");
     btnSearchToggle.textContent = "⌕";
     searchInput.value = "";
-    if (!previewOn) editor.focus();
+    if (!previewOn) {
+      editor.focus();
+      restoreCursorPosition(getEditorText().length);
+    }
   }
   renderTabs();
 }
@@ -479,7 +496,10 @@ function loadActiveNote() {
   updateLastEdited();
   initHistory();
   if (previewOn) renderPreview();
-  if (!previewOn) editor.focus();
+  if (!previewOn) {
+    editor.focus();
+    restoreCursorPosition(getEditorText().length); // Places cursor at the bottom automatically
+  }
 }
 
 // Adjusts the visibility of child elements to properly collapse sub-headings
@@ -780,6 +800,7 @@ function togglePreview() {
     preview.classList.add("hidden");
     editor.classList.remove("hidden");
     editor.focus();
+    restoreCursorPosition(getEditorText().length);
   }
 }
 
@@ -1020,6 +1041,19 @@ searchInput.addEventListener("keydown", (e) => {
   }
 });
 
+// ── Block Rich-Text Pasting
+editor.addEventListener("paste", (e) => {
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+  insertAtCursor(text);
+});
+
+editor.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const text = e.dataTransfer.getData("text/plain");
+  insertAtCursor(text);
+});
+
 // ── Keyboard shortcuts
 document.addEventListener("keydown", (e) => {
   const ctrl = e.ctrlKey || e.metaKey;
@@ -1107,6 +1141,7 @@ editor.addEventListener("keydown", (e) => {
   }
 
   if (e.key === "Enter") {
+    e.preventDefault(); // Block default browser <div> line-breaks natively 
     const cursorPos = getCursorPosition();
     const currentText = getEditorText();
     const currentLine = currentText.slice(0, cursorPos).split("\n").pop();
@@ -1114,19 +1149,19 @@ editor.addEventListener("keydown", (e) => {
 
     if (match) {
       if (currentLine.trim() === match[0].trim()) {
-        e.preventDefault();
         const newText =
           currentText.slice(0, cursorPos - match[0].length) +
           currentText.slice(cursorPos);
         setEditorText(newText);
         restoreCursorPosition(cursorPos - match[0].length);
       } else {
-        e.preventDefault();
         let insertText = "\n" + match[1];
         if (insertText.includes("[x]") || insertText.includes("[X]"))
           insertText = insertText.replace(/\[[xX]\]/, "[ ]");
         insertAtCursor(insertText);
       }
+    } else {
+        insertAtCursor("\n"); // Normal Return handling
     }
   }
 });
