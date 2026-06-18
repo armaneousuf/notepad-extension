@@ -75,8 +75,6 @@ function noteIndex(id = activeId) {
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
 function getEditorText() {
-  // Using textContent ensures a 1:1 match with the Selection Range string length
-  // without native browser innerText formatting breaking the offset calculation.
   return editor.textContent;
 }
 
@@ -324,7 +322,7 @@ function setStatus(state) {
 
 function updateLastEdited() {
   const note = activeNote();
-  if (note) lastEdited.textContent = "· Edited " + timeAgo(note.updatedAt);
+  if (note) lastEdited.textContent = "· " + timeAgo(note.updatedAt);
 }
 setInterval(updateLastEdited, 60000);
 
@@ -499,7 +497,7 @@ function loadActiveNote() {
   if (previewOn) renderPreview();
   if (!previewOn) {
     editor.focus();
-    restoreCursorPosition(getEditorText().length); // Places cursor at the bottom automatically
+    restoreCursorPosition(getEditorText().length);
   }
 }
 
@@ -516,7 +514,7 @@ function updatePreviewVisibility() {
     if (isHeading) {
       level = parseInt(el.tagName.substring(1));
       if (level <= hideLevel) {
-        hideLevel = Infinity; // We reached a heading of equal or higher priority. Reset.
+        hideLevel = Infinity; // Reset
       }
     }
 
@@ -571,28 +569,34 @@ function renderPreview() {
     const monthIndex = parseInt(month, 10) - 1;
     const monthName = months[monthIndex] || month;
 
-    // Format output cleanly (e.g., "26 May 2026")
     const formattedDate = `${parseInt(day, 10)} ${monthName} ${year}`;
 
     return `<span class="date-badge"><span class="date-icon"></span> ${formattedDate}</span>`;
   });
 
-  // 3. Highlight Tag: Turns !!text!! into an eye-catching warning/accent pill
+  // 3. Highlight Tag: Turns !!text!! into warning/accent pill
   parsed = parsed.replace(
     /!!([^!]+)!!/g,
     '<span class="note-highlight"><span class="hl-icon">⚠️</span> $1</span>',
   );
 
-  // 4. Info/Idea Block: Turns ((text)) into a distinct block layout for clean notes
+  // 4. Info/Idea Block: Turns ((text)) into a distinct block layout
   parsed = parsed.replace(
     /\(\(([^)]+)\)\)/g,
     '<div class="note-idea"><span class="idea-icon">💡</span><div class="idea-content">$1</div></div>',
   );
 
-  // Set the standard HTML first
+  // Set standard HTML
   preview.innerHTML = parsed;
 
-  // 1. Process ALL headings to maintain their collapsed state
+  // Run highlight.js parsing on all rendered code blocks, if loaded
+  if (typeof hljs !== "undefined") {
+    preview.querySelectorAll("pre code").forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  }
+
+  // 1. Process ALL headings to maintain collapsed state
   const allHeadings = preview.querySelectorAll("h1, h2, h3, h4, h5, h6");
   allHeadings.forEach((heading, index) => {
     if (!heading.id) {
@@ -600,7 +604,6 @@ function renderPreview() {
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")}`;
     }
-    // Restore preserved collapsible states
     if (
       collapsedStates[activeId] &&
       collapsedStates[activeId].has(heading.id)
@@ -639,14 +642,12 @@ function renderPreview() {
       tocList.appendChild(li);
     });
 
-    // Smooth scroll intervention & auto-close overlay
     tocList.addEventListener("click", (e) => {
       if (e.target.tagName === "A") {
         e.preventDefault();
         const targetId = e.target.getAttribute("href").slice(1);
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
-          // If jumping to collapsed section, maybe uncollapse it
           targetElement.scrollIntoView({
             behavior: "smooth",
             block: "start",
@@ -665,11 +666,9 @@ function renderPreview() {
     tocWrapper.appendChild(tocToggle);
     tocWrapper.appendChild(tocDropdown);
 
-    // Prepend the floating wrapper so it sticks to the top-right and text wraps it
     preview.prepend(tocWrapper);
   }
 
-  // Hide the sections nested inside the collapsed headings
   updatePreviewVisibility();
 }
 
@@ -694,7 +693,6 @@ preview.addEventListener("click", async (e) => {
     "#preview > h1, #preview > h2, #preview > h3, #preview > h4, #preview > h5, #preview > h6",
   );
   if (heading && !e.target.closest("a")) {
-    // Do not fold if the user explicitly clicked an embedded link
     heading.classList.toggle("collapsed");
 
     if (!collapsedStates[activeId]) {
@@ -714,7 +712,6 @@ preview.addEventListener("click", async (e) => {
   // 2. Handle Markdown links
   const link = e.target.closest("a");
 
-  // Prevent catching our internal TOC clicks
   if (link && link.href && !link.getAttribute("href").startsWith("#")) {
     e.preventDefault();
 

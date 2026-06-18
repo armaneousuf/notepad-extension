@@ -517,16 +517,16 @@ body.ctrl-pressed #editor .editor-link {
   vertical-align: text-bottom;
 }
 
-/* ── Status bar */
+/* ── Status bar CSS (Overlapping Fixed) */
 #statusbar {
   flex-shrink: 0;
   height: var(--footer-h);
   background: var(--bg0-h);
   border-top: 1px solid var(--bg1);
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.1fr auto 1.3fr; /* Adaptive layout grid */
   align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
+  padding: 0 10px;
   font-family: var(--font-ui);
   font-size: 11px;
   color: var(--fg4);
@@ -534,15 +534,22 @@ body.ctrl-pressed #editor .editor-link {
   transition:
     background 0.2s,
     border-color 0.2s;
+  box-sizing: border-box;
+  gap: 8px;
 }
 .status-left {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 #save-status {
-  color: var(--fg4);
   transition: color 0.2s;
+  flex-shrink: 0;
+  min-width: 48px;
 }
 #save-status.saving {
   color: var(--yellow);
@@ -552,10 +559,51 @@ body.ctrl-pressed #editor .editor-link {
 }
 #last-edited {
   color: var(--bg3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+#selection-stats {
+  color: var(--yellow-b);
+  font-weight: bold;
+  min-width: 48px;
+  text-align: left;
 }
 #stats {
   color: var(--bg3);
   letter-spacing: 0.02em;
+}
+.status-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+#reading-time {
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+#global-stats {
+  color: var(--yellow-b);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.status-separator {
+  color: var(--bg2);
+  user-select: none;
 }
 
 .hidden {
@@ -751,4 +799,87 @@ body.theme-light #preview .note-idea {
 
 body.theme-light #preview .note-idea .idea-content {
   color: var(--fg);
+}
+
+/* ── Highlight.js Adaptive Code Highlighting ── */
+.hljs-comment,
+.hljs-quote {
+  color: var(--bg3);
+  font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-addition {
+  color: var(--red-b);
+  font-weight: bold;
+}
+.hljs-string,
+.hljs-meta-string {
+  color: var(--green-b);
+}
+.hljs-number,
+.hljs-regexp,
+.hljs-literal {
+  color: var(--orange-b);
+}
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--yellow-b);
+  font-weight: bold;
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute,
+.hljs-built_in {
+  color: var(--blue-b);
+}
+.hljs-type,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+  color: var(--aqua-b);
+}
+.hljs-params {
+  color: var(--fg2);
+}
+
+/* Adaptive styles for Light Theme */
+body.theme-light .hljs-keyword,
+body.theme-light .hljs-selector-tag,
+body.theme-light .hljs-addition {
+  color: var(--red);
+}
+body.theme-light .hljs-string,
+body.theme-light .hljs-meta-string {
+  color: var(--green);
+}
+body.theme-light .hljs-number,
+body.theme-light .hljs-regexp,
+body.theme-light .hljs-literal {
+  color: var(--orange);
+}
+body.theme-light .hljs-title,
+body.theme-light .hljs-section,
+body.theme-light .hljs-name,
+body.theme-light .hljs-selector-id,
+body.theme-light .hljs-selector-class {
+  color: var(--yellow);
+}
+body.theme-light .hljs-variable,
+body.theme-light .hljs-template-variable,
+body.theme-light .hljs-attribute,
+body.theme-light .hljs-built_in {
+  color: var(--blue);
+}
+body.theme-light .hljs-type,
+body.theme-light .hljs-symbol,
+body.theme-light .hljs-bullet,
+body.theme-light .hljs-link {
+  color: var(--aqua);
+}
+body.theme-light .hljs-params {
+  color: var(--fg2);
 }
