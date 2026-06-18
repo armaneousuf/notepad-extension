@@ -890,6 +890,7 @@ function exportMd() {
 }
 
 async function grabActiveTabInfo() {
+  
   try {
     const [tab] = await chrome.tabs.query({
       active: true,
@@ -939,14 +940,14 @@ async function grabActiveTabInfo() {
         
         // Output with YouTube timestamp and Grab Time
         insertAtCursor(
-          `\n- [▶ ${timeStr}] [${title}](${urlObj.toString()}) _(${timestamp})_\n  - `,
+          `\n- [▶ ${timeStr}] [${title}](${urlObj.toString()}) _(${timestamp})_ \n`,
         );
         return;
       }
     }
     
     // Output with Tab Link and Grab Time
-    insertAtCursor(`\n- 📖 [${title}](${url}) _(${timestamp})_\n  - `);
+    insertAtCursor(`\n- 🔖 [${title}](${url}) _(${timestamp})_ \n`);
   } catch (error) {
     console.log("Could not grab tab info", error);
     insertAtCursor("\n- [Error grabbing link]\n");
