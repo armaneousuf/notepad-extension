@@ -901,6 +901,19 @@ async function grabActiveTabInfo() {
     let title = tab.title.replace("- YouTube", "").trim();
     let isYT = url.includes("youtube.com/watch");
 
+    // Generate the current date and time formatted string
+    const now = new Date();
+    const dateStr = now.toLocaleDateString(undefined, { 
+      month: "short", 
+      day: "numeric", 
+      year: "numeric" 
+    });
+    const timeStrNow = now.toLocaleTimeString(undefined, { 
+      hour: "numeric", 
+      minute: "2-digit" 
+    });
+    const timestamp = `${timeStrNow} · ${dateStr}`; // e.g., "11:43 PM · Jun 18, 2026"
+
     if (isYT) {
       let [{ result: time }] = await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -923,13 +936,17 @@ async function grabActiveTabInfo() {
 
         let urlObj = new URL(url);
         urlObj.searchParams.set("t", time + "s");
+        
+        // Output with YouTube timestamp and Grab Time
         insertAtCursor(
-          `\n- [▶ ${timeStr}] [${title}](${urlObj.toString()})\n  - `,
+          `\n- [▶ ${timeStr}] [${title}](${urlObj.toString()}) _(${timestamp})_\n  - `,
         );
         return;
       }
     }
-    insertAtCursor(`\n- 📖 [${title}](${url})\n  - `);
+    
+    // Output with Tab Link and Grab Time
+    insertAtCursor(`\n- 📖 [${title}](${url}) _(${timestamp})_\n  - `);
   } catch (error) {
     console.log("Could not grab tab info", error);
     insertAtCursor("\n- [Error grabbing link]\n");
