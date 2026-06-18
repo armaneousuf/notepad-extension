@@ -9,56 +9,44 @@
   <body>
     <div id="app">
       <header id="header">
-        <div id="tab-bar">
-          <div id="tabs-scroll">
-            <div id="tabs-list"></div>
-          </div>
-          <div id="search-wrap" class="hidden">
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Search notes by title or content..."
-              autocomplete="off"
-            />
-          </div>
-          <button id="btn-search-toggle" title="Search notes (Ctrl+F)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 24 24"
-            >
-              <g fill="none" stroke="currentColor">
-                <circle cx="11" cy="11" r="5.5" />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m15 15l4 4"
-                />
-              </g>
-            </svg>
-          </button>
-          <button id="btn-new-tab" title="New note (Ctrl+T)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 24 24"
-            >
-              <g fill="none" stroke="currentColor" stroke-width="1.5">
-                <path
-                  d="M2 19V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2Z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2 7h20M9 14h3m3 0h-3m0 0v-3m0 3v3"
-                />
-              </g>
-            </svg>
-          </button>
-        </div>
         <div id="toolbar">
+          <div id="toolbar-left">
+            <button id="btn-sidebar-toggle" title="Toggle Sidebar (Ctrl+\)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2ZM9 4v16"
+                />
+              </svg>
+            </button>
+            <button id="btn-new-tab" title="New Note (Ctrl+T)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="1.1em"
+                height="1.1em"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 5v14M5 12h14"
+                />
+              </svg>
+            </button>
+          </div>
+
           <span id="note-title-wrap">
             <input
               id="note-title"
@@ -68,6 +56,7 @@
               maxlength="40"
             />
           </span>
+
           <div id="toolbar-actions">
             <a
               href="https://github.com/armaneousuf/notepad-extension#shortcuts"
@@ -155,7 +144,7 @@
               >
                 <path
                   fill="currentColor"
-                  d="M14.18 4.276a.75.75 0 0 1 .531.918l-3.973 14.83a.75.75 0 0 1-1.45-.389l3.974-14.83a.75.75 0 0 1 .919-.53m2.262 3.053a.75.75 0 0 1 1.059-.056l1.737 1.564c.737.662 1.347 1.212 1.767 1.71c.44.525.754 1.088.754 1.784c0 .695-.313 1.258-.754 1.782c-.42.499-1.03 1.049-1.767 1.711l-1.737 1.564a.75.75 0 0 1-1.004-1.115l1.697-1.527c.788-.709 1.319-1.19 1.663-1.598c.33-.393.402-.622.402-.818s-.072-.424-.402-.817c-.344-.409-.875-.89-1.663-1.598l-1.697-1.527a.75.75 0 0 1-.056-1.06m-8.94 1.06a.75.75 0 1 0-1.004-1.115L4.761 8.836c-.737.662-1.347 1.212-1.767 1.71c-.44.525-.754 1.088-.754 1.784c0 .695.313 1.258.754 1.782c.42.499 1.03 1.049 1.767 1.711l1.737 1.564a.75.75 0 0 0 1.004-1.115l-1.697-1.527c-.788-.709-1.319-1.19-1.663-1.598c-.33-.393-.402-.622-.402-.818s.072-.424.402-.817c.344-.409.875-.89 1.663-1.598z"
+                  d="M14.18 4.276a.75.75 0 0 1 .531.918l-3.973 14.83a.75.75 0 0 1-1.45-.389l3.974-14.83a.75.75 0 0 1 .919-.53m2.262 3.053a.75.75 0 0 1 1.059-.056l1.737 1.564c.737.662 1.347 1.212 1.767 1.71c.44.525.754 1.088.754 1.784c0 .695-.313 1.258-.754 1.782c-.42.499-1.03 1.049-1.767 1.711l-1.737 1.564a.75.75 0 0 1-1.004-1.115l1.697-1.527c.788-.709 1.319-1.19-1.663-1.598c.33-.393.402-.622.402-.818s-.072-.424-.402-.817c-.344-.409-.875-.89-1.663-1.598l-1.697-1.527a.75.75 0 0 1-.056-1.06m-8.94 1.06a.75.75 0 1 0-1.004-1.115L4.761 8.836c-.737.662-1.347 1.212-1.767 1.71c-.44.525-.754 1.088-.754 1.784c0 .695.313 1.258.754 1.782c.42.499 1.03 1.049 1.767 1.711l1.737 1.564a.75.75 0 0 0 1.004-1.115l-1.697-1.527c-.788-.709-1.319-1.19-1.663-1.598c-.33-.393-.402-.622-.402-.818s.072-.424.402-.817c.344-.409.875-.89 1.663-1.598z"
                 />
               </svg>
             </button>
@@ -264,10 +253,24 @@
         </div>
       </header>
 
-      <main id="editor-wrap">
-        <div id="editor" contenteditable="true" spellcheck="true"></div>
-        <div id="preview" class="hidden"></div>
-      </main>
+      <div id="workspace">
+        <aside id="sidebar">
+          <div id="sidebar-search-wrap">
+            <input
+              id="sidebar-search-input"
+              type="text"
+              placeholder="Search notes..."
+              autocomplete="off"
+            />
+          </div>
+          <div id="sidebar-notes-list"></div>
+        </aside>
+
+        <main id="editor-wrap">
+          <div id="editor" contenteditable="true" spellcheck="true"></div>
+          <div id="preview" class="hidden"></div>
+        </main>
+      </div>
 
       <footer id="statusbar">
         <div class="status-left">

@@ -1,11 +1,8 @@
-const SEARCH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor"><circle cx="11" cy="11" r="5.5" /><path stroke-linecap="round" stroke-linejoin="round" d="m15 15l4 4" /></g></svg>`;
-const CLOSE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/></svg>`;
-
 /**
  * Notepad — Chrome Extension
  */
 
-("use strict");
+"use strict";
 
 // Tab expanding logic (Zen Mode check)
 const urlParams = new URLSearchParams(window.location.search);
@@ -21,13 +18,13 @@ if (isTabMode) {
 const STORAGE_NOTES = "notepad_notes";
 const STORAGE_ACTIVE = "notepad_active";
 const STORAGE_THEME = "notepad_theme";
+const STORAGE_SIDEBAR = "notepad_sidebar";
 
 let notes = [];
 let activeId = null;
 let statusTimer = null;
 let previewOn = false;
 let isLightMode = false;
-let isSearching = false;
 
 // Headings Collapsible State (keys: noteId, value: Set of hidden heading IDs)
 let collapsedStates = {};
@@ -37,8 +34,6 @@ let historyStack = [];
 let historyIndex = -1;
 let isApplyingHistory = false;
 
-const tabsList = document.getElementById("tabs-list");
-const tabsScroll = document.getElementById("tabs-scroll");
 const btnNewTab = document.getElementById("btn-new-tab");
 const noteTitle = document.getElementById("note-title");
 const editor = document.getElementById("editor");
@@ -47,18 +42,21 @@ const btnPreview = document.getElementById("btn-preview");
 const btnExport = document.getElementById("btn-export");
 const btnDelete = document.getElementById("btn-delete");
 const btnTheme = document.getElementById("btn-theme");
-const btnSearchToggle = document.getElementById("btn-search-toggle");
 const btnGrabTab = document.getElementById("btn-grab-tab");
 const btnCodeBlock = document.getElementById("btn-code-block");
 const btnCopyAll = document.getElementById("btn-copy-all");
 const btnPopout = document.getElementById("btn-popout");
 
+// Sidebar Elements
+const sidebar = document.getElementById("sidebar");
+const sidebarSearchInput = document.getElementById("sidebar-search-input");
+const sidebarNotesList = document.getElementById("sidebar-notes-list");
+const btnSidebarToggle = document.getElementById("btn-sidebar-toggle");
+
 if (isTabMode && btnPopout) {
   btnPopout.style.display = "none";
 }
 
-const searchWrap = document.getElementById("search-wrap");
-const searchInput = document.getElementById("search-input");
 const saveStatus = document.getElementById("save-status");
 const lastEdited = document.getElementById("last-edited");
 const stats = document.getElementById("stats");
@@ -331,11 +329,18 @@ setInterval(updateLastEdited, 60000);
 
 function load() {
   chrome.storage.local.get(
-    [STORAGE_NOTES, STORAGE_ACTIVE, STORAGE_THEME],
+    [STORAGE_NOTES, STORAGE_ACTIVE, STORAGE_THEME, STORAGE_SIDEBAR],
     (result) => {
       notes = result[STORAGE_NOTES] || [];
       activeId = result[STORAGE_ACTIVE] || null;
       isLightMode = result[STORAGE_THEME] === "light";
+
+      // Default to "collapsed" if it has never been set [INDEX]
+      const sidebarCollapsed =
+        result[STORAGE_SIDEBAR] === undefined ||
+        result[STORAGE_SIDEBAR] === "collapsed";
+      sidebar.classList.toggle("collapsed", sidebarCollapsed);
+      btnSidebarToggle.classList.toggle("active", !sidebarCollapsed);
 
       if (isLightMode) document.body.classList.add("theme-light");
       if (notes.length === 0) {
@@ -344,7 +349,7 @@ function load() {
       }
       if (!notes.find((n) => n.id === activeId)) activeId = notes[0].id;
 
-      renderTabs();
+      renderSidebar();
       loadActiveNote();
 
       btnPreview.classList.toggle("active", previewOn);
@@ -371,8 +376,11 @@ function createNote(title = "Untitled") {
   };
   notes.push(note);
   activeId = note.id;
-  if (isSearching) toggleSearch();
-  renderTabs();
+
+  // Clear any existing search filter to let them see the new note in the list immediately
+  sidebarSearchInput.value = "";
+
+  renderSidebar();
   loadActiveNote();
   persist();
   noteTitle.focus();
@@ -386,21 +394,23 @@ function deleteNote(idToDel) {
     notes[0].title = "Note 1";
     notes[0].content = "";
     notes[0].updatedAt = new Date().toISOString();
-    renderTabs();
+    renderSidebar();
     loadActiveNote();
     persist();
     return;
   }
   notes.splice(idx, 1);
   if (idToDel === activeId) activeId = notes[Math.max(0, idx - 1)].id;
-  renderTabs();
+  renderSidebar();
   persist();
   loadActiveNote();
 }
 
-function renderTabs() {
-  tabsList.innerHTML = "";
-  const query = isSearching ? searchInput.value.toLowerCase() : "";
+function renderSidebar() {
+  if (!sidebarNotesList) return;
+  sidebarNotesList.innerHTML = "";
+
+  const query = sidebarSearchInput.value.toLowerCase();
   const visibleNotes = query
     ? notes.filter(
         (n) =>
@@ -409,63 +419,42 @@ function renderTabs() {
       )
     : notes;
 
-  if (query && visibleNotes.length === 0) {
-    tabsList.innerHTML =
-      '<div style="padding:0 12px; color:var(--bg3); font-size:12px; display:flex; align-items:center;">No matches</div>';
+  if (visibleNotes.length === 0) {
+    sidebarNotesList.innerHTML =
+      '<div style="padding:16px; color:var(--bg3); font-size:12px; text-align:center;">No matches</div>';
     return;
   }
 
   visibleNotes.forEach((note) => {
-    const btn = document.createElement("div");
-    btn.className = "tab" + (note.id === activeId ? " active" : "");
-    btn.title = note.title || "Untitled";
+    const item = document.createElement("div");
+    item.className = "sidebar-item" + (note.id === activeId ? " active" : "");
+    item.title = note.title || "Untitled";
 
     const titleSpan = document.createElement("span");
-    titleSpan.className = "tab-title";
+    titleSpan.className = "sidebar-item-title";
     titleSpan.textContent = note.title || "Untitled";
 
     const closeBtn = document.createElement("span");
-    closeBtn.className = "tab-close";
+    closeBtn.className = "sidebar-item-close";
     closeBtn.innerHTML = "×";
     closeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       deleteNote(note.id);
     });
 
-    btn.appendChild(titleSpan);
-    btn.appendChild(closeBtn);
-    btn.addEventListener("click", () => switchTo(note.id));
-    tabsList.appendChild(btn);
+    item.appendChild(titleSpan);
+    item.appendChild(closeBtn);
+    item.addEventListener("click", () => switchTo(note.id));
+    sidebarNotesList.appendChild(item);
   });
-  if (!isSearching) {
-    const activeTab = tabsList.querySelector(".tab.active");
-    if (activeTab)
-      activeTab.scrollIntoView({ inline: "nearest", block: "nearest" });
-  }
 }
 
-function toggleSearch() {
-  isSearching = !isSearching;
-  if (isSearching) {
-    searchWrap.classList.remove("hidden");
-    // FIX: Do not hide tabsScroll so the filtered tabs list remains visible
-    btnNewTab.classList.add("hidden");
-    btnSearchToggle.classList.add("active");
-    btnSearchToggle.innerHTML = CLOSE_SVG; // Smooth SVG swap
-    searchInput.value = "";
-    searchInput.focus();
-  } else {
-    searchWrap.classList.add("hidden");
-    btnNewTab.classList.remove("hidden");
-    btnSearchToggle.classList.remove("active");
-    btnSearchToggle.innerHTML = SEARCH_SVG; // Restore original magnifying glass SVG
-    searchInput.value = "";
-    if (!previewOn) {
-      editor.focus();
-      restoreCursorPosition(getEditorText().length);
-    }
-  }
-  renderTabs();
+function toggleSidebar() {
+  const isCollapsed = sidebar.classList.toggle("collapsed");
+  btnSidebarToggle.classList.toggle("active", !isCollapsed);
+  chrome.storage.local.set({
+    [STORAGE_SIDEBAR]: isCollapsed ? "collapsed" : "expanded",
+  });
 }
 
 function switchTo(id) {
@@ -476,8 +465,7 @@ function switchTo(id) {
     cur.title = noteTitle.value.trim() || "Untitled";
   }
   activeId = id;
-  if (isSearching) toggleSearch();
-  renderTabs();
+  renderSidebar();
   loadActiveNote();
   persist();
 }
@@ -588,10 +576,10 @@ function renderPreview() {
     '<div class="note-idea"><span class="idea-icon">💡</span><div class="idea-content">$1</div></div>',
   );
 
-  // Set standard HTML
+  // Set the standard HTML
   preview.innerHTML = parsed;
 
-  // Run highlight.js parsing on all rendered code blocks, if loaded
+  // Run local highlight.js parsing on all rendered code blocks, if loaded [INDEX]
   if (typeof hljs !== "undefined") {
     preview.querySelectorAll("pre code").forEach((block) => {
       hljs.highlightElement(block);
@@ -972,21 +960,14 @@ function insertCodeBlock() {
   editor.focus();
 }
 
-tabsScroll.addEventListener("wheel", (e) => {
-  if (e.deltaY !== 0) {
-    tabsScroll.scrollLeft += e.deltaY;
-    e.preventDefault();
-  }
-});
-
 btnNewTab.addEventListener("click", () => createNote());
 btnPreview.addEventListener("click", togglePreview);
 btnTheme.addEventListener("click", toggleTheme);
-btnSearchToggle.addEventListener("click", toggleSearch);
 btnExport.addEventListener("click", exportMd);
 btnGrabTab.addEventListener("click", grabActiveTabInfo);
 btnCodeBlock.addEventListener("click", insertCodeBlock);
 btnCopyAll.addEventListener("click", handleCopyAll);
+btnSidebarToggle.addEventListener("click", toggleSidebar);
 
 // "Open in Full Tab" Feature
 if (btnPopout) {
@@ -995,7 +976,7 @@ if (btnPopout) {
   });
 }
 
-searchInput.addEventListener("input", renderTabs);
+sidebarSearchInput.addEventListener("input", renderSidebar);
 btnDelete.addEventListener("click", () => {
   if (confirm("Delete this note?")) deleteNote(activeId);
 });
@@ -1024,7 +1005,7 @@ editor.addEventListener("input", () => {
 noteTitle.addEventListener("input", () => {
   activeNote().title = noteTitle.value.trim() || "Untitled";
   activeNote().updatedAt = new Date().toISOString();
-  renderTabs();
+  renderSidebar();
   persist();
 });
 
@@ -1034,10 +1015,12 @@ noteTitle.addEventListener("keydown", (e) => {
     e.preventDefault();
   }
 });
-searchInput.addEventListener("keydown", (e) => {
+sidebarSearchInput.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     e.preventDefault();
-    toggleSearch();
+    sidebarSearchInput.value = "";
+    renderSidebar();
+    editor.focus();
   }
 });
 
@@ -1097,8 +1080,13 @@ document.addEventListener("keydown", (e) => {
     exportMd();
   }
   if (ctrl && e.key === "f") {
+    // Search is now dedicated to the sidebar [INDEX]
     e.preventDefault();
-    toggleSearch();
+    if (sidebar.classList.contains("collapsed")) {
+      toggleSidebar();
+    }
+    sidebarSearchInput.focus();
+    sidebarSearchInput.select();
   }
   if (ctrl && e.shiftKey && (e.key === "Y" || e.key === "y")) {
     e.preventDefault();
@@ -1108,10 +1096,14 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     insertCodeBlock();
   }
+  if (ctrl && e.key === "\\") {
+    // Sidebar layout toggle shortcut [INDEX]
+    e.preventDefault();
+    toggleSidebar();
+  }
 
   if (ctrl && e.key === "Tab") {
     e.preventDefault();
-    if (isSearching) return;
     const idx = noteIndex();
     const next = e.shiftKey
       ? (idx - 1 + notes.length) % notes.length
