@@ -41,6 +41,7 @@
 | **`Ctrl + Shift + Tab`**| Cycle leftward through open note tabs |
 | **`Ctrl + Click`** | Open a detected markdown link cleanly inside a new browser tab |
 | **`Escape`** *(In Search)* | Safely close the search filter interface |
+| **`Ctrl + \`** | To open/close sidebar |
 | **`Tab`** | Injects code-compliant double space (`  `) indentation block |
 | **`Enter`** | Automates continuous list markers (`-`, `*`, numbered, empty `[ ]` checkboxes) |
 
