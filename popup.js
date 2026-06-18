@@ -1,8 +1,11 @@
+const SEARCH_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><g fill="none" stroke="currentColor"><circle cx="11" cy="11" r="5.5" /><path stroke-linecap="round" stroke-linejoin="round" d="m15 15l4 4" /></g></svg>`;
+const CLOSE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/></svg>`;
+
 /**
  * Notepad — Chrome Extension
  */
 
-"use strict";
+("use strict");
 
 // Tab expanding logic (Zen Mode check)
 const urlParams = new URLSearchParams(window.location.search);
@@ -445,18 +448,17 @@ function toggleSearch() {
   isSearching = !isSearching;
   if (isSearching) {
     searchWrap.classList.remove("hidden");
-    tabsScroll.classList.add("hidden");
+    // FIX: Do not hide tabsScroll so the filtered tabs list remains visible
     btnNewTab.classList.add("hidden");
     btnSearchToggle.classList.add("active");
-    btnSearchToggle.textContent = "✕";
+    btnSearchToggle.innerHTML = CLOSE_SVG; // Smooth SVG swap
     searchInput.value = "";
     searchInput.focus();
   } else {
     searchWrap.classList.add("hidden");
-    tabsScroll.classList.remove("hidden");
     btnNewTab.classList.remove("hidden");
     btnSearchToggle.classList.remove("active");
-    btnSearchToggle.textContent = "⌕";
+    btnSearchToggle.innerHTML = SEARCH_SVG; // Restore original magnifying glass SVG
     searchInput.value = "";
     if (!previewOn) {
       editor.focus();
