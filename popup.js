@@ -863,13 +863,13 @@ document.addEventListener("selectionchange", () => {
         selectionStats.textContent = `[${selWords}w/${selChars}c]`;
       }
     } else {
-      if (selectionStats && selectionStats.textContent !== "[Ready]") {
-        selectionStats.textContent = "[Ready]";
+      if (selectionStats && selectionStats.textContent !== "[Markdown]") {
+        selectionStats.textContent = "[Markdown]";
       }
     }
   } else {
-    if (selectionStats && selectionStats.textContent !== "[Ready]") {
-      selectionStats.textContent = "[Ready]";
+    if (selectionStats && selectionStats.textContent !== "[Markdown]") {
+      selectionStats.textContent = "[Markdown]";
     }
   }
 });
