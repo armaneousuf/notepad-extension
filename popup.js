@@ -46,6 +46,14 @@ const btnGrabTab = document.getElementById("btn-grab-tab");
 const btnCodeBlock = document.getElementById("btn-code-block");
 const btnCopyAll = document.getElementById("btn-copy-all");
 const btnPopout = document.getElementById("btn-popout");
+const btnFontIncrease = document.getElementById("btn-font-increase");
+const btnFontDecrease = document.getElementById("btn-font-decrease");
+
+const STORAGE_FONTSIZE = "notepad_fontsize";
+const FONT_MIN = 12;
+const FONT_MAX = 28;
+const FONT_STEP = 1;
+let currentFontSize = 15;
 
 // Sidebar Elements
 const sidebar = document.getElementById("sidebar");
@@ -205,6 +213,20 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keyup", (e) => {
   if (e.key === "Control" || e.key === "Meta")
     document.body.classList.remove("ctrl-pressed");
+});
+
+btnFontIncrease.addEventListener("click", () => {
+  if (currentFontSize >= FONT_MAX) return;
+  currentFontSize += FONT_STEP;
+  applyFontSize(currentFontSize);
+  saveFontSize();
+});
+
+btnFontDecrease.addEventListener("click", () => {
+  if (currentFontSize <= FONT_MIN) return;
+  currentFontSize -= FONT_STEP;
+  applyFontSize(currentFontSize);
+  saveFontSize();
 });
 
 // Click interception for Links inside Editor mode
@@ -1187,4 +1209,21 @@ window.addEventListener("pagehide", () => {
   });
 });
 
+function applyFontSize(size) {
+  editor.style.fontSize = size + "px";
+  preview.style.fontSize = size + "px";
+}
+
+function loadFontSize() {
+  chrome.storage.local.get(STORAGE_FONTSIZE, (data) => {
+    currentFontSize = data[STORAGE_FONTSIZE] || 15;
+    applyFontSize(currentFontSize);
+  });
+}
+
+function saveFontSize() {
+  chrome.storage.local.set({ [STORAGE_FONTSIZE]: currentFontSize });
+}
+
 load();
+loadFontSize()
