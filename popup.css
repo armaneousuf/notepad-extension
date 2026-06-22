@@ -289,6 +289,44 @@ body {
   align-items: center;
   gap: 2px;
 }
+
+#toolbar-actions .icon-btn {
+  background: var(--bg1);
+  border: 1px solid var(--bg2);
+  color: var(--fg3);
+  width: 26px;
+  height: 26px;
+}
+
+#toolbar-actions .icon-btn:hover {
+  background: var(--bg2);
+  border-color: var(--bg3);
+  color: var(--fg);
+}
+
+#toolbar-actions .icon-btn.active {
+  background: var(--bg2);
+  border-color: var(--aqua);
+  color: var(--aqua-b);
+}
+
+#toolbar-actions .icon-btn.danger:hover {
+  background: rgba(204, 36, 29, 0.15);
+  border-color: var(--red);
+  color: var(--red-b);
+}
+
+#btn-font-decrease,
+#btn-font-increase {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+  width: auto;
+  padding: 0 5px;
+  min-width: 22px;
+  letter-spacing: -0.5px;
+}
+
 .icon-btn {
   background: none;
   border: none;
