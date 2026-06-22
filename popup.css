@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 :root {
 --bg0-h: #13151a;
 --bg0:   #1a1d23; 
@@ -24,7 +25,7 @@
 --orange-b: #fe8019;
   --radius: 4px;
   --font-mono:
-   "Cascadia Code", "Fira Mono", "Consolas", "Courier New", monospace;
+   "Lato", "Cascadia Code", "Fira Mono", "Consolas", "Courier New", monospace;
   --font-ui: system-ui, -apple-system, sans-serif;
   --toolbar-h: 36px;
   --footer-h: 24px;
@@ -477,7 +478,7 @@ body.ctrl-pressed #editor .editor-link {
 #preview > h4::before,
 #preview > h5::before,
 #preview > h6::before {
-  content: "↓";
+  content: "➤";
   font-size: 0.6em;
   display: inline-block;
   margin-right: 8px;
@@ -755,25 +756,10 @@ body.ctrl-pressed #editor .editor-link {
 }
 
 /* Smart Date Badge UI */
-#preview .date-badge {
-  background: var(--bg1);
-  color: var(--orange-b);
-  border: 1px solid var(--bg2);
-  padding: 2px 8px;
-  border-radius: var(--radius);
-  font-family: var(--font-ui);
-  font-weight: 500;
-  font-size: 0.9em;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  margin: 0 2px;
-  transition: border-color 0.15s;
-}
 
-#preview .date-badge:hover {
-  border-color: var(--orange);
+#preview .date-badge {
+  color: var(--orange-b);
+  border-bottom: 1px solid var(--blue);
 }
 
 #preview .date-badge .date-icon {
@@ -787,15 +773,9 @@ body.theme-light #preview .note-tag {
   border-color: var(--blue-b);
 }
 
-body.theme-light #preview .date-badge {
-  background: var(--bg1);
-  color: var(--orange);
-  border-color: var(--bg2);
-}
-
 /* !!Highlight Tag Style!! */
 #preview .note-highlight {
-  background-color: rgba(204, 36, 29, 0.12); /* Subtle Gruvbox Red tint */
+  background-color: rgba(204, 36, 29, 0.12); 
   color: var(--red-b);
   border: 1px solid var(--red);
   padding: 1px 6px;
