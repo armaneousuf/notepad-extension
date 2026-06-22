@@ -601,12 +601,38 @@ function renderPreview() {
   // Set the standard HTML
   preview.innerHTML = parsed;
 
+  async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
   // Run local highlight.js parsing on all rendered code blocks, if loaded [INDEX]
   if (typeof hljs !== "undefined") {
-    preview.querySelectorAll("pre code").forEach((block) => {
-      hljs.highlightElement(block);
+  preview.querySelectorAll("pre code").forEach((block) => {
+    hljs.highlightElement(block);
+
+    // Add copy button to each code block
+    const pre = block.parentElement;
+    pre.style.position = "relative";
+
+    const btn = document.createElement("button");
+    btn.textContent = "Copy";
+    btn.className = "copy-btn";
+    btn.addEventListener("click", async () => {
+      const result = await copyText(block.innerText);
+      if (result.success) {
+        btn.textContent = "Copied!";
+        setTimeout(() => (btn.textContent = "Copy"), 2000);
+      }
     });
-  }
+
+    pre.appendChild(btn);
+  });
+}
 
   // 1. Process ALL headings to maintain collapsed state
   const allHeadings = preview.querySelectorAll("h1, h2, h3, h4, h5, h6");
