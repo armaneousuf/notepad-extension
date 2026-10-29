@@ -626,6 +626,7 @@ body.ctrl-pressed #editor .editor-link {
   min-width: 48px;
   text-align: left;
 }
+
 #stats {
   color: var(--bg3);
   letter-spacing: 0.02em;
